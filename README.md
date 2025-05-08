@@ -1,6 +1,7 @@
 # foxAndFOX
-first demo project using THREE.js
+first demo project using THREE.js 🦊
 [![foxAndFOX](https://github.com/user-attachments/assets/d33f7f38-ebd2-44d9-b061-5ca33f0e1405)](https://fox-and-fox.vercel.app/)
+🔗https://fox-and-fox.vercel.app/
 
 ## to install required node modules
 ```
@@ -15,7 +16,7 @@ npm run dev
 - Environment made in Blender
 - Fox model and animations sourced online
 - HDRIs from Polyhaven
-- Character Controller logic adapted from [SimonDev](https://www.youtube.com/watch?v=EkPfhzIbp2g)
+- Character Controller logic adapted from [SimonDev](https://www.youtube.com/watch?v=EkPfhzIbp2g), [Character Controller](https://github.com/simondevyoutube/ThreeJS_Tutorial_CharacterController/tree/main)
 ### Controls
 - WASD to move FOX, hold shift to RUN
 - LMB to pan, RMB to rotate
