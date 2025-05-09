@@ -68,7 +68,12 @@ debugUIParams.resetCam = () => {
   controls.update();
 };
 
-gui.add(debugUIParams, "resetCam").name("Reset Camera");
+gui
+  .add(debugUIParams, "resetCam")
+  .name("Reset Camera")
+  .onChange(() => {
+    canvas.focus();
+  });
 
 //show the updated camera coordinates on GUI everytime it changes
 const cameraPositionDisplay = {
@@ -118,10 +123,9 @@ const gltfLoader = new GLTFLoader();
 gltfLoader.load(
   "/models/seashack_waterNoLighting/seashack_waterNoLighting.gltf",
   (gltf) => {
-    // console.log(gltf);
     envModel = gltf.scene.clone();
     scene.add(envModel);
-    console.log(envModel);
+    // console.log(envModel);
     setScaleAndConstraints();
   }
 );
@@ -150,11 +154,19 @@ const HDRIs = {
 const rgbeLoader = new RGBELoader();
 
 function loadHDRI(key) {
-  const filename = HDRIs[key];
-  rgbeLoader.load(`./hdri/${filename}`, (environmentMap) => {
-    environmentMap.mapping = THREE.EquirectangularReflectionMapping;
-    scene.background = environmentMap;
-    scene.environment = environmentMap;
+  return new Promise((resolve, reject) => {
+    const filename = HDRIs[key];
+    rgbeLoader.load(
+      `./hdri/${filename}`,
+      (environmentMap) => {
+        environmentMap.mapping = THREE.EquirectangularReflectionMapping;
+        scene.background = environmentMap;
+        scene.environment = environmentMap;
+        resolve();
+      },
+      undefined,
+      (err) => reject(err)
+    );
   });
 }
 
@@ -163,7 +175,10 @@ const intensitySlider = gui
   .min(0.2)
   .max(2)
   .step(0.1)
-  .name("Env Light Intensity");
+  .name("Env Light Intensity")
+  .onFinishChange(() => {
+    canvas.focus();
+  });
 
 // Load initial HDRI
 loadHDRI(debugUIParams.EnvMap);
@@ -173,8 +188,12 @@ gui
   .add(debugUIParams, "EnvMap", Object.keys(HDRIs))
   .name("Time")
   .onChange((key) => {
-    loadHDRI(key);
-    setIntensity(key);
+    loadHDRI(key)
+      .then(() => {
+        setIntensity(key);
+        canvas.focus();
+      })
+      .catch((err) => console.error("HDRI load failed:", err));
   });
 
 const intensityByKey = {
@@ -187,23 +206,6 @@ function setIntensity(key) {
   scene.environmentIntensity = intensityByKey[key] ?? 1;
   intensitySlider.updateDisplay();
 }
-
-/**
- * Lights
- */
-// const ambientLight = new THREE.AmbientLight(0xffffff, 2.4);
-// scene.add(ambientLight);
-
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 1.8);
-// directionalLight.castShadow = true;
-// directionalLight.shadow.mapSize.set(1024, 1024);
-// directionalLight.shadow.camera.far = 15;
-// directionalLight.shadow.camera.left = -7;
-// directionalLight.shadow.camera.top = 7;
-// directionalLight.shadow.camera.right = 7;
-// directionalLight.shadow.camera.bottom = -7;
-// directionalLight.position.set(5, 5, 5);
-// scene.add(directionalLight);
 
 /**
  * Map Controls
@@ -219,10 +221,6 @@ controls.minPolarAngle = 0.1;
  * Ensure Zoom and Pan stays within the limits of the seabed bounds
  */
 function setScaleAndConstraints() {
-  // console.log(
-  //   "scene clone loaded successfully, setting scale and constraints..."
-  // );
-
   const sand = envModel.getObjectByName("sand");
   const water = envModel.getObjectByName("water");
 

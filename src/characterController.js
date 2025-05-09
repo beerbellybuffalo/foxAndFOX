@@ -63,9 +63,8 @@ class BasicCharacterController {
           action: action,
         };
       });
-      console.log(this._animations);
+      // console.log("Animations:", this._animations);
     });
-    console.log("character model loaded successfully!");
     this._stateMachine.SetState("survey");
   }
 
